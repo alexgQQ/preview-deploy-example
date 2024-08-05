@@ -1,0 +1,45 @@
+{{define "layout"}}
+<!doctype html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <!-- <link href="css/style.css" type="text/css" rel="stylesheet"> -->
+</head>
+
+<section>
+  <header>
+    <div>
+      <span>
+        This is a header
+      </span>
+    </div>
+  </header>
+
+  <body>
+    <div>
+      <h1>
+        Fill out this form!
+      </h1>
+      <p>
+        {{if .text_input}}
+          Wow I can't believe you submitted: {{.text_input}}
+        {{else}}
+          Everybody loves a good form...
+        {{end}}
+      </p>
+      {{template "body"}}
+    </div>
+  </body>
+
+  <footer>
+    <div>
+      <span>
+        This is a footer © 2024 
+      </span>
+    </div>
+  </footer>
+</section> 
+
+</html>
+{{end}}
