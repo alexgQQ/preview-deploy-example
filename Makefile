@@ -5,14 +5,14 @@ GOARCH ?= $(shell go env GOARCH || echo amd64)
 CGO_ENABLED ?= 0
 
 PROJECT_VERSION ?= 0.0.1
-DOCKER_IMAGE ?= preview-deploy-example-app:
+DOCKER_IMAGE ?= preview-deploy-example-app
 TAG ?= latest
 
 install: init ## install dev tools
 	go install github.com/air-verse/air@latest
 
 start: ## start air for hot reloading
-	~/go/bin/air --root "./client-app" --build.cmd "go build -o ./client-app/bin/app ./client-app/main.go" --build.bin "./client-app/bin/app"
+	cd client-app && ~/go/bin/air --build.cmd "go build -o bin/app main.go" --build.bin "bin/app"
 
 docker-image: ## build docker image
 	docker build --build-arg PROJECT_VERSION=${PROJECT_VERSION} -t ${DOCKER_IMAGE}:${TAG} .

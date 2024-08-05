@@ -23,8 +23,8 @@ func renderRoot(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	lp := filepath.Join("client-app", "templates", "layout.html")
-	fp := filepath.Join("client-app", "templates", "index.html")
+	lp := filepath.Join("templates", "layout.html")
+	fp := filepath.Join("templates", "index.html")
 
 	tmpl, err := template.ParseFiles(lp, fp)
 	if err != nil {
