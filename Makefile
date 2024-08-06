@@ -17,6 +17,10 @@ start: ## start air for hot reloading
 docker-image: ## build docker image
 	docker build --build-arg PROJECT_VERSION=${PROJECT_VERSION} -t ${DOCKER_IMAGE}:${TAG} .
 
+docker-push: ## push image to docker hub
+	docker tag ${DOCKER_IMAGE}:${TAG} alexgqq/${DOCKER_IMAGE}:${TAG}
+	docker image push alexgqq/${DOCKER_IMAGE}:${TAG}
+
 test: ## test application
 
 .PHONY: install
