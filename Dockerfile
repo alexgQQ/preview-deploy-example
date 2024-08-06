@@ -2,7 +2,7 @@
 # https://docs.docker.com/build/building/multi-stage/
 
 # Image from https://hub.docker.com/_/golang
-FROM golang:1.22.2 AS builder
+FROM golang:1.22.2-bookworm AS builder
 RUN go version
 
 ARG PROJECT_VERSION
@@ -17,14 +17,10 @@ RUN GOOS=linux GOARCH=amd64 \
     -o app main.go
 # RUN go test -cover -v ./...
 
-# If you need SSL certificates for HTTPS, replace `FROM SCRATCH` with:
-#
-#   FROM alpine:3.17.1
-#   RUN apk --no-cache add ca-certificates
-#
-# FROM scratch
-# WORKDIR /root/
-# COPY --from=builder /go/src/app .
+FROM gcr.io/distroless/base-debian12
+WORKDIR /root
+COPY client-app/templates templates
+COPY --from=builder /go/src/app .
 
 EXPOSE 8080
-ENTRYPOINT ["./app"]
+CMD ["./app"]
