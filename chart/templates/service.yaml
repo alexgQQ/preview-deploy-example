@@ -6,7 +6,7 @@ metadata:
     {{- include "chart.labels" . | nindent 4 }}
   annotations:
     tailscale.com/expose: "true"
-    tailscale.com/hostname: "example-app"
+    tailscale.com/hostname: {{ include "chart.fullname" . }}
 spec:
   type: {{ .Values.service.type }}
   ports:
