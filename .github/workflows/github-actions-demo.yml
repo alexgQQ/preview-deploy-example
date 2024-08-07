@@ -4,7 +4,14 @@ on:
 
 jobs:
   Explore-GitHub-Actions:
-    # You need to use the INSTALLATION_NAME from the previous step
-    runs-on: self-hosted-runner
+    runs-on: ubuntu-latest
     steps:
-    - run: echo "🎉 This job uses runner scale set runners!"
+    - name: Tailscale
+      uses: tailscale/github-action@v2
+      with:
+        oauth-client-id: ${{ secrets.TS_OAUTH_CLIENT_ID }}
+        oauth-secret: ${{ secrets.TS_OAUTH_SECRET }}
+        tags: tag:ci
+    - run: "curl -fsSL https://tailscale.com/install.sh | sh"
+    - run: tailscale configure kubeconfig tailscale-operator
+    - run: kubectl get nodes
