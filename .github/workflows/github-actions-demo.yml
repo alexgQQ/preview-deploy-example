@@ -12,6 +12,8 @@ jobs:
         oauth-client-id: ${{ secrets.TS_OAUTH_CLIENT_ID }}
         oauth-secret: ${{ secrets.TS_OAUTH_SECRET }}
         tags: tag:ci
-    - run: "curl -fsSL https://tailscale.com/install.sh | sh"
-    - run: tailscale configure kubeconfig tailscale-operator
-    - run: kubectl get nodes
+    - uses: actions-hub/kubectl@master
+      env:
+        KUBE_CONFIG: ${{ secrets.TS_K8S_CONFIG }}
+      with:
+        args: get pods
