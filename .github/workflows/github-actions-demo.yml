@@ -9,10 +9,12 @@ jobs:
     - name: Tailscale
       uses: tailscale/github-action@v2
       with:
-        authkey: ${{ secrets.TAILSCALE_AUTHKEY }}
+        oauth-client-id: ${{ secrets.TS_OAUTH_CLIENT_ID }}
+        oauth-secret: ${{ secrets.TS_OAUTH_SECRET }}
         tags: tag:ci
-    - uses: actions-hub/kubectl@master
-      env:
-        KUBE_CONFIG: ${{ secrets.TS_K8S_CONFIG }}
-      with:
-        args: get pods
+    - run: |
+        curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl"
+        install -o root -g root -m 0755 kubectl /usr/bin/kubectl
+        mkdir ~/.kube
+        echo ${{ secrets.TS_K8S_CONFIG }} | base64 -d > ~/.kube/config
+    - run: kubectl get pods
