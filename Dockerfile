@@ -18,6 +18,10 @@ RUN GOOS=linux GOARCH=amd64 \
 # RUN go test -cover -v ./...
 
 FROM gcr.io/distroless/base-debian12
+
+ARG COMMIT_SHA
+ENV COMMIT_SHA=${COMMIT_SHA}
+
 WORKDIR /root
 COPY client-app/templates templates
 COPY --from=builder /go/src/app .

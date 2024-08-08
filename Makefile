@@ -6,7 +6,8 @@ CGO_ENABLED ?= 0
 
 PROJECT_VERSION ?= 0.0.1
 DOCKER_IMAGE ?= preview-deploy-example-app
-IMAGE_TAG ?= $(git rev-parse --short HEAD)
+IMAGE_TAG ?= $(shell git rev-parse --short HEAD)
+COMMIT_SHA ?= $(shell git rev-parse HEAD)
 
 install: init ## install dev tools
 	go install github.com/air-verse/air@latest
@@ -15,7 +16,7 @@ start: ## start air for hot reloading
 	cd client-app && ~/go/bin/air --build.cmd "go build -o bin/app main.go" --build.bin "bin/app"
 
 docker-image: ## build docker image
-	docker build --build-arg PROJECT_VERSION=${PROJECT_VERSION} -t ${DOCKER_IMAGE}:${IMAGE_TAG} .
+	docker build --build-arg PROJECT_VERSION=${PROJECT_VERSION} --build-arg COMMIT_SHA=${COMMIT_SHA} -t ${DOCKER_IMAGE}:${IMAGE_TAG} .
 
 docker-push: ## push image to docker hub
 	docker tag ${DOCKER_IMAGE}:${IMAGE_TAG} alexgqq/${DOCKER_IMAGE}:${IMAGE_TAG}

@@ -6,6 +6,7 @@ import (
 	"html/template"
 	"log"
 	"net/http"
+	"os"
 	"path/filepath"
 )
 
@@ -15,6 +16,14 @@ func http500(w http.ResponseWriter) {
 
 func http405(w http.ResponseWriter) {
 	http.Error(w, http.StatusText(http.StatusMethodNotAllowed), http.StatusMethodNotAllowed)
+}
+
+func loadEnvVar(key string) (string, error) {
+	value := os.Getenv(key)
+	if value == "" {
+		return value, fmt.Errorf("Environment value `%s` is not set", key)
+	}
+	return value, nil
 }
 
 func renderRoot(w http.ResponseWriter, r *http.Request) {
@@ -60,7 +69,8 @@ func renderHealth(w http.ResponseWriter, r *http.Request) {
 		http405(w)
 		return
 	}
-	data := map[string]string{"health": "ok"}
+	sha, _ := loadEnvVar("COMMIT_SHA")
+	data := map[string]string{"health": "ok", "commit_sha": sha}
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(data)
 }

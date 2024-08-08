@@ -27,6 +27,9 @@ jobs:
         with:
           push: true
           tags: alexgqq/preview-deploy-example-app:${{ needs.get-short-sha.outputs.short_sha }}
+          build-args: |
+            PROJECT_VERSION=0.0.1
+            COMMIT_SHA=${{ github.sha }}
 
   deploy-preview:
     needs: [get-short-sha, build-image]
