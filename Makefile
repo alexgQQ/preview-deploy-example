@@ -23,6 +23,7 @@ docker-push: ## push image to docker hub
 	docker image push alexgqq/${DOCKER_IMAGE}:${IMAGE_TAG}
 
 test: ## test application
+	go test app/*.go
 
 .PHONY: install
 
