@@ -1,28 +1,18 @@
 name: Deploy Preview Workflow
 on:
-  # workflow_dispatch:
-  # push:
-  #   branches:
-  #     - main
+  push:
+    branches:
+      - main
   pull_request:
 
 # The GITHUB_SHA is different between a push event and pull_request event
 # I'm not sure if this works for a tag based ref
 # This could break helm deploy if the branch name is too long or contains certain characters
 env:
-  BRANCH_NAME: ${{ github.head_ref || github.ref_name }} 
+  BRANCH_NAME: ${{ github.head_ref || github.ref_name }}
+  LATEST_SHA: ${{ github.ref == 'refs/heads/main' && github.sha || github.event.pull_request.head.sha }}
 
 jobs:
-  get-short-sha:
-    runs-on: ubuntu-latest
-    outputs:
-      short_sha: ${{ steps.get_short_sha.outputs.short_sha }}
-    steps:
-      - name: Clone Repo
-        uses: actions/checkout@v4
-      - id: get_short_sha
-        run: echo "short_sha=$(git rev-parse --short ${{ github.event.pull_request.head.sha }})" >> $GITHUB_OUTPUT
-
   run-tests:
     runs-on: ubuntu-latest
     steps:
@@ -36,8 +26,11 @@ jobs:
 
   build-image:
     runs-on: ubuntu-latest
-    needs: [get-short-sha, run-tests]
+    needs: run-tests
     steps:
+      - uses: actions/checkout@v4
+      - id: get_short_sha
+        run: echo "short_sha=$(git rev-parse --short ${{ env.LATEST_SHA }})" >> $GITHUB_OUTPUT
       - name: Login to Docker Hub
         uses: docker/login-action@v3
         with:
@@ -47,15 +40,19 @@ jobs:
         uses: docker/build-push-action@v6
         with:
           push: true
-          tags: alexgqq/preview-deploy-example-app:${{ needs.get-short-sha.outputs.short_sha }}
+          # This uses a public dockerhub repository by default
+          tags: alexgqq/preview-deploy-example-app:${{ steps.get_short_sha.outputs.short_sha }}
           build-args: |
             PROJECT_VERSION=0.0.1
-            COMMIT_SHA=${{ github.event.pull_request.head.sha }}
+            COMMIT_SHA=${{ env.LATEST_SHA }}
 
   deploy-preview:
-    needs: [get-short-sha, build-image]
+    needs: build-image
     runs-on: ubuntu-latest
     steps:
+      - uses: actions/checkout@v4
+      - id: get_short_sha
+        run: echo "short_sha=$(git rev-parse --short ${{ env.LATEST_SHA }})" >> $GITHUB_OUTPUT
       - name: Connect to Tailscale
         uses: tailscale/github-action@v2
         with:
@@ -67,7 +64,5 @@ jobs:
           mkdir $HOME/.kube
           echo ${{ secrets.TS_K8S_CONFIG }} | base64 -d > $HOME/.kube/config
           curl -fsSL https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3 | bash
-      - name: Clone Repo
-        uses: actions/checkout@v4
       - name: Deploy Preview
-        run: helm upgrade --install app-${{ env.BRANCH_NAME }} --set image.tag=${{ needs.get-short-sha.outputs.short_sha }} ./chart
+        run: helm upgrade --install app-${{ env.BRANCH_NAME }} --set image.tag=${{ steps.get_short_sha.outputs.short_sha }} ./chart
