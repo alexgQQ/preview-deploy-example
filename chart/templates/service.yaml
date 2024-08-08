@@ -4,6 +4,9 @@ metadata:
   name: {{ include "chart.fullname" . }}
   labels:
     {{- include "chart.labels" . | nindent 4 }}
+# TODO: I'd like to use the tailscale ingress resource instead
+# but that creates some error I'm not sure how to fix
+# for now this at least gets traffic through
   annotations:
     tailscale.com/expose: "true"
     tailscale.com/hostname: {{ include "chart.fullname" . }}
