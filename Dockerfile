@@ -7,7 +7,7 @@ RUN go version
 
 ARG PROJECT_VERSION
 
-COPY client-app /go/src/
+COPY app /go/src/
 WORKDIR /go/src/
 
 RUN GOOS=linux GOARCH=amd64 \
@@ -23,7 +23,7 @@ ARG COMMIT_SHA
 ENV COMMIT_SHA=${COMMIT_SHA}
 
 WORKDIR /root
-COPY client-app/templates templates
+COPY app/templates templates
 COPY --from=builder /go/src/app .
 
 EXPOSE 8080

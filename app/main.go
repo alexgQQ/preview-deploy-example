@@ -21,7 +21,7 @@ func http405(w http.ResponseWriter) {
 func loadEnvVar(key string) (string, error) {
 	value := os.Getenv(key)
 	if value == "" {
-		return value, fmt.Errorf("Environment value `%s` is not set", key)
+		return value, fmt.Errorf("environment value `%s` is not set", key)
 	}
 	return value, nil
 }
