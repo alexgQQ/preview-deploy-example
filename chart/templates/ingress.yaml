@@ -10,9 +10,9 @@ spec:
     service:
       name: {{ include "chart.fullname" . }}
       port:
-        name: http
+        number: {{ .Values.service.port }}
   ingressClassName: tailscale
   tls:
     - hosts:
-      - {{ include "chart.fullname" . }}
+      - {{ .Release.Name }}
 {{- end }}
