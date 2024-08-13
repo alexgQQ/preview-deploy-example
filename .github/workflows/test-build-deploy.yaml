@@ -18,7 +18,7 @@ jobs:
   test-scan:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v4
       - name: Setup Go
         uses: actions/setup-go@v5
         with:
@@ -58,15 +58,27 @@ jobs:
           tags: ${{ env.IMAGE_NAME }}:${{ steps.get_short_sha.outputs.short_sha }}
           build-args: |
             COMMIT_SHA=${{ env.LATEST_SHA }}
-      - name: Run Image Vulnerability Scanner
-        uses: aquasecurity/trivy-action@0.20.0
-        with:
-          image-ref: ${{ env.IMAGE_NAME }}:${{ steps.get_short_sha.outputs.short_sha }}
-          format: 'table'
-          # TODO: Leave this for testing
-          exit-code: '0'
-          ignore-unfixed: true
-          severity: 'CRITICAL,HIGH,MEDIUM'
+      - name: Manual Trivy Run
+        run: |
+          curl -sfL https://raw.githubusercontent.com/aquasecurity/trivy/main/contrib/install.sh | sudo sh -s -- -b /usr/local/bin v0.54.1
+          trivy image --format template --template @.github/markdown.tpl --exit-code 0 --ignore-unfixed \
+            --vuln-type os,library --severity CRITICAL,HIGH,MEDIUM --output report.md ${{ env.IMAGE_NAME }}:${{ steps.get_short_sha.outputs.short_sha }}
+      # - name: Run Image Vulnerability Scanner
+      #   uses: aquasecurity/trivy-action@0.20.0
+      #   with:
+      #     image-ref: ${{ env.IMAGE_NAME }}:${{ steps.get_short_sha.outputs.short_sha }}
+      #     format: 'template'
+      #     # TODO: Leave this for testing
+      #     exit-code: '0'
+      #     ignore-unfixed: true
+      #     severity: 'CRITICAL,HIGH,MEDIUM'
+      #     output: 'report.html'
+      #     template: '.github/trivy-html.tpl'
+      # - name: Convert JSON to HTML Table
+      #   uses: Teebra/JSON-to-HTML-table@v2.0.0
+      #   with:
+      #     json-file: trivy-output.json
+      - run: cat report.md >> $GITHUB_STEP_SUMMARY
       - name: Push to Container Registry
         uses: docker/build-push-action@v6
         with:
