@@ -1,4 +1,4 @@
-name: Test Build Scan
+name: Test Build Deploy Branch
 on:
   push:
     branches:
@@ -95,3 +95,5 @@ jobs:
           curl -fsSL https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3 | bash
       - name: Deploy Branch
         run: helm upgrade --install app-${{ env.BRANCH_NAME }} --set image.tag=${{ steps.get_short_sha.outputs.short_sha }} ./chart
+      - name: Deployment Link Summary
+        run: echo "Deployment available at https://app-${{ env.BRANCH_NAME }}.tail80e68.ts.net" >> $GITHUB_STEP_SUMMARY
