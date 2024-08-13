@@ -10,8 +10,8 @@ on:
 # The GITHUB_SHA is different between a push event and pull_request event
 # The simple branch name is the HEAD ref for pull_request events but REF_NAME for pushes
 env:
-  BRANCH_NAME: ${{ github.head_ref || github.ref_name }}
-  LATEST_SHA: ${{ github.ref == 'refs/heads/main' && github.sha || github.event.pull_request.head.sha }}
+  BRANCH_NAME: ${{ github.event.workflow_run.head_branch }}
+  LATEST_SHA: ${{ github.event.workflow_run.head_sha }}
 
 jobs:
   deploy-branch:
