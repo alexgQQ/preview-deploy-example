@@ -20,7 +20,7 @@ jobs:
       - name: Setup Go
         uses: actions/setup-go@v5
         with:
-          go-version: '1.22.5'
+          go-version: '1.22'
       - name: Run Tests
         run: make test
       - name: Run Gosec Security Scanner
@@ -30,8 +30,9 @@ jobs:
       # The image build doesn't depend on the tests to start but we do
       # want to end the workflow sooner if they fail
       # https://github.com/orgs/community/discussions/38361
-      - if: "failure()"
-        uses: "andymckay/cancel-action@0.3"
+      # - if: "failure()"
+      #   uses: "andymckay/cancel-action@0.3"
+      # Error: Resource not accessible by integration
 
   build-scan-push-image:
     runs-on: ubuntu-latest
@@ -69,3 +70,5 @@ jobs:
         with:
           push: true
           tags: ${{ env.IMAGE_NAME }}:${{ steps.get_short_sha.outputs.short_sha }}
+          build-args: |
+            COMMIT_SHA=${{ env.LATEST_SHA }}
