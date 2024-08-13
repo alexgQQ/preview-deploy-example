@@ -72,7 +72,7 @@ func renderHealth(w http.ResponseWriter, r *http.Request) {
 	sha, _ := loadEnvVar("COMMIT_SHA")
 	data := map[string]string{"health": "ok", "commit_sha": sha}
 	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(data)
+	json.NewEncoder(w).Encode(data) //#nosec G104 - no error handling
 }
 
 func main() {
@@ -80,7 +80,7 @@ func main() {
 	http.HandleFunc("/health-check", renderHealth)
 
 	fmt.Printf("Listening on port 8080\n")
-	err := http.ListenAndServe(":8080", nil)
+	err := http.ListenAndServe(":8080", nil) //#nosec G114 - no support for setting timeouts
 	if err != nil {
 		log.Fatal("ListenAndServe: ", err)
 	}

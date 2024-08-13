@@ -5,7 +5,8 @@
 FROM golang:1.22.2-bookworm AS builder
 RUN go version
 
-ARG PROJECT_VERSION
+ARG APP_VERSION=0.0.0
+ENV APP_VERSION=${APP_VERSION}
 
 COPY app /go/src/
 WORKDIR /go/src/
@@ -13,7 +14,7 @@ WORKDIR /go/src/
 RUN GOOS=linux GOARCH=amd64 \
     go build \
     -trimpath \
-    -ldflags="-w -s -X 'main.Version=${PROJECT_VERSION}'" \
+    -ldflags="-w -s -X 'main.Version=${APP_VERSION}'" \
     -o app main.go
 # RUN go test -cover -v ./...
 

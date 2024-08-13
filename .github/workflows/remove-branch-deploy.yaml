@@ -1,0 +1,23 @@
+name: Delete Branch Deploy
+on:
+  delete
+
+jobs:
+  uninstall-preview:
+    if: github.ref_type == "branch"
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Connect to Tailscale
+        uses: tailscale/github-action@v2
+        with:
+          oauth-client-id: ${{ secrets.TS_OAUTH_CLIENT_ID }}
+          oauth-secret: ${{ secrets.TS_OAUTH_SECRET }}
+          tags: tag:ci
+      - name: Install Kube Config and Helm
+        run: |
+          mkdir $HOME/.kube
+          echo ${{ secrets.TS_K8S_CONFIG }} | base64 -d > $HOME/.kube/config
+          curl -fsSL https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3 | bash
+      - name: Uninstall Preview
+        run: helm uninstall app-${{ github.ref_name }}
