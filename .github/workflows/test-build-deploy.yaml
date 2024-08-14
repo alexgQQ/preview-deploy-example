@@ -62,27 +62,17 @@ jobs:
           tags: ${{ env.IMAGE_NAME }}:${{ steps.get_short_sha.outputs.short_sha }}
           build-args: |
             COMMIT_SHA=${{ env.LATEST_SHA }}
-      - name: Manual Trivy Run
+      # To get the vulnerability scan output as a "friendly" markdown table
+      # I need to run the trivy cmd directly along with a markdown template file
+      # and output it to the summary var
+      - name: Image Vulnerability Scan
         run: |
           curl -sfL https://raw.githubusercontent.com/aquasecurity/trivy/main/contrib/install.sh | sudo sh -s -- -b /usr/local/bin v0.54.1
-          trivy image --format template --template @.github/markdown.tpl --exit-code 0 --ignore-unfixed \
-            --vuln-type os,library --severity CRITICAL,HIGH,MEDIUM --output report.md ${{ env.IMAGE_NAME }}:${{ steps.get_short_sha.outputs.short_sha }}
-      # - name: Run Image Vulnerability Scanner
-      #   uses: aquasecurity/trivy-action@0.20.0
-      #   with:
-      #     image-ref: ${{ env.IMAGE_NAME }}:${{ steps.get_short_sha.outputs.short_sha }}
-      #     format: 'template'
-      #     # TODO: Leave this for testing
-      #     exit-code: '0'
-      #     ignore-unfixed: true
-      #     severity: 'CRITICAL,HIGH,MEDIUM'
-      #     output: 'report.html'
-      #     template: '.github/trivy-html.tpl'
-      # - name: Convert JSON to HTML Table
-      #   uses: Teebra/JSON-to-HTML-table@v2.0.0
-      #   with:
-      #     json-file: trivy-output.json
-      - run: cat report.md >> $GITHUB_STEP_SUMMARY
+          trivy image --exit-code 0 --ignore-unfixed \
+            --format template --template @.github/markdown.tpl --output report.md \
+            --vuln-type os,library --severity CRITICAL,HIGH,MEDIUM \
+            ${{ env.IMAGE_NAME }}:${{ steps.get_short_sha.outputs.short_sha }}
+          cat report.md >> $GITHUB_STEP_SUMMARY
       - name: Push to Container Registry
         uses: docker/build-push-action@v6
         with:

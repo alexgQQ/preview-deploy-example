@@ -1,4 +1,10 @@
-<!-- https://github.com/aquasecurity/trivy/pull/3202 -->
+<!-- https://github.com/aquasecurity/trivy/pull/3202 
+    The author of this had a very similar use case to mine
+    for outputting vulnerabilities to the action summary but not
+    using the Advanced Security feature Github offers for dependency graphs.
+    I'm surprised this isn't just part of the main templates shipped with
+    trivy but I can't blame someone for not wanting to maintain markdown tables.
+ -->
 {{- if . }}
 {{- range . }}
 <h3>Target <code>{{ escapeXML .Target }}</code></h3>
