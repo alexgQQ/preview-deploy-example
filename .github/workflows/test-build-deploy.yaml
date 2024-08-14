@@ -22,13 +22,17 @@ jobs:
       - name: Setup Go
         uses: actions/setup-go@v5
         with:
-          go-version: '1.22'
+          go-version-file: go.mod
       - name: Run Tests
         run: make test
       - name: Run Gosec Security Scanner
         uses: securego/gosec@master
         with:
           args: ./app/...
+      - name: Run Go Vulnerability Checker
+        uses: golang/govulncheck-action@v1
+        with:
+          go-package: ./app
       # The image build doesn't depend on the tests to start but we do
       # want to end the workflow sooner if they fail
       # https://github.com/orgs/community/discussions/38361

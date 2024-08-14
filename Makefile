@@ -29,7 +29,11 @@ docker-push: ## push image to docker hub
 	docker image push alexgqq/${DOCKER_IMAGE}:${IMAGE_TAG}
 
 test: ## test application
-	go test app/*.go
+	go test -cover app/*.go
+
+test-coverage: ## create a coverage report
+	go test -coverprofile=cover.out app/*.go
+	go tool cover -html=cover.out
 
 .PHONY: install
 

@@ -2,11 +2,33 @@ package main
 
 import (
 	"encoding/json"
+	"fmt"
 	"io"
 	"net/http"
 	"net/http/httptest"
+	"os"
 	"testing"
 )
+
+func TestMain(m *testing.M) {
+	rc := m.Run()
+
+	fmt.Println("coverage at", testing.Coverage())
+
+	// tests pass now coverage check, fail under 10%
+	// requires the -cover flag on `go test`
+	// As a side note I'm a little surprised there isn't a flag for this
+	// on the `go test` or the coverage tool
+	if rc == 0 && testing.CoverMode() != "" {
+		t := 0.10
+		c := testing.Coverage()
+		if c < t {
+			fmt.Println("Tests passed but coverage failed at", c)
+			rc = -1
+		}
+	}
+	os.Exit(rc)
+}
 
 func TestHealthCheck(t *testing.T) {
 	req, err := http.NewRequest("GET", "/health-check", nil)
